@@ -16,5 +16,35 @@ namespace PhanMemQuanLyQuanCafe
         {
             InitializeComponent();
         }
+
+        private void fTableManager_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lsvBill_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void mnFoodCount_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cbFood_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nmDiscount_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void đăngXuấtToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
