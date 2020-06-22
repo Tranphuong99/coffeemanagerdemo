@@ -254,10 +254,3 @@ VALUES  ( 7, -- idBill - int
           )         
           
 GO
-select f.name, bi.count,f.price, f.price*bi.count AS totalPrice from dbo.BillInfo as bi, dbo.Bill as b, dbo.Food as f 
-where bi.idBill = b.id and bi.idFood = f.id and b.idTable = 3
-
-select * from dbo.Bill
-select * from dbo.BillInfo
-select * from dbo.Food
-select * from dbo.FoodCategory
