@@ -19,3 +19,4 @@ C:\Users\Windows 10 Version 2\Desktop\Project1\Sources\Phần Mềm Quản Lý Q
 C:\Users\Windows 10 Version 2\Desktop\Project1\Sources\Phần Mềm Quản Lý Quán Cafe\PhanMemQuanLyQuanCafe\PhanMemQuanLyQuanCafe\obj\Debug\PhanMemQuanLyQuanCafe.exe
 C:\Users\Windows 10 Version 2\Desktop\Project1\Sources\Phần Mềm Quản Lý Quán Cafe\PhanMemQuanLyQuanCafe\PhanMemQuanLyQuanCafe\obj\Debug\PhanMemQuanLyQuanCafe.pdb
 C:\Users\Windows 10 Version 2\Desktop\Project1\Sources\Phần Mềm Quản Lý Quán Cafe\PhanMemQuanLyQuanCafe\PhanMemQuanLyQuanCafe\obj\Debug\PhanMemQuanLyQuanCafe.fAccountProfile.resources
+C:\Users\Windows 10 Version 2\Desktop\Project1\Sources\Phần Mềm Quản Lý Quán Cafe\PhanMemQuanLyQuanCafe\PhanMemQuanLyQuanCafe\obj\Debug\PhanMemQuanLyQuanCafe.fAdmin.resources
