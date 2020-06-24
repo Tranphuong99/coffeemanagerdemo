@@ -30,7 +30,7 @@ GO
 CREATE TABLE Account
 (
 	UserName NVARCHAR(100) PRIMARY KEY,	
-	DisplayName NVARCHAR(100) NOT NULL DEFAULT N'Kter',
+	DisplayName NVARCHAR(100) NOT NULL DEFAULT N'Nhân viên',
 	PassWord NVARCHAR(1000) NOT NULL DEFAULT 0,
 	Type INT NOT NULL  DEFAULT 0 -- 1: admin && 0: staff
 )
@@ -253,4 +253,78 @@ VALUES  ( 7, -- idBill - int
           2  -- count - int
           )         
           
+GO
+Create proc USP_InsertBill
+@idTable INT
+AS
+BEGIN
+   INSERT dbo.Bill
+   (DateCheckIn,
+    DateCheckOut,
+	idTable,
+	status)
+	VALUES(GETDATE() , -- DateCheckIn - date
+          NULL , -- DateCheckOut - date
+          @idTable , -- idTable - int
+          0  -- status - int
+        )
+END
+GO
+
+CREATE proc	USP_InsertBillInfo
+@idBill INT, @idFood INT, @count INT
+AS
+BEGIN
+ 
+	DECLARE @isExistBillInfo INT
+	DECLARE @foodCount INT = 1
+	Select @isExistBillInfo = id, @foodCount = b.count From dbo.BillInfo as b where idBill = @idBill and idFood = @idFood
+	if (@isExistBillInfo >0)
+	BEGIN
+		DECLARE @newCount INT = @foodCount+ @count
+		IF (@newCount >0)
+		UPDATE	dbo.BillInfo SET Count = @foodCount + count where idFood = @idFood
+		ELSE
+		DELETE dbo.BillInfo where idBill = @idBill and idFood = @idFood
+	END
+	else  
+	BEGIN
+	INSERT	dbo.BillInfo
+        ( idBill, idFood, count )
+	VALUES  ( @idBill, -- idBill - int
+          @idFood, -- idFood - int
+          @count  -- count - int
+          )
+	END
+END
+GO
+
+DELETE dbo.BillInfo
+DELETE dbo.Bill 
+
+Create trigger UTG_UpdateBillInfo
+On dbo.BillInfo for insert, update
+AS
+BEGIN
+	DECLARE	@idBill INT
+	SELECT idBill from inserted
+	DECLARE @idTable INT
+	SELECT @idTable = idTable from dbo.Bill where id = @idBill and status = 0
+	UPDATE dbo.TableFood SET status = N'Có người' Where	id = @idTable
+END
+GO
+
+Create trigger UTG_UpdateBIll
+ON dbo.Bill for Update 
+AS
+BEGIN
+	DECLARE @idBill INT 
+	SELECT @idBill = id from inserted
+	DECLARE @idTable INT
+	SELECT @idTable = idTable from dbo.Bill where id = @idBill
+	DECLARE @count INT =0
+	SELECT @count = Count(*) from dbo.Bill where idTable = @idTable and status = 0
+	IF (@count ==0)
+		UPDATE dbo.TableFood SET status = N'Trống' where id=@idTable
+END
 GO
