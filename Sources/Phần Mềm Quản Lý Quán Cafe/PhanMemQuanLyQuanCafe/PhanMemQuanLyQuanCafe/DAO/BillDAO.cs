@@ -22,19 +22,20 @@ namespace PhanMemQuanLyQuanCafe.DAO
 
         public int GetUncheckBillIDByTableID(int id)
         {
-            DataTable data = DataProvider.Instance.ExecuteQuery("select * from dbo.Bill where idTable="+ id + "and status = 0");
+            DataTable data = DataProvider.Instance.ExecuteQuery("select * from dbo.Bill where idTable="+ id + " and status = 0");
 
             if (data.Rows.Count > 0)
             {
                 Bill bill = new Bill(data.Rows[0]);
                 return bill.ID;
             }
+            else
             return -1;
         }
 
-        public void CheckOut (int id)
+        public void CheckOut (int id, int discount)
         {
-            string query = "UPDATE dbo.Bill SET status =1 where id =" +id;
+            string query = "UPDATE dbo.Bill SET status =1 , discount = " +discount  +" where id =" +id;
             DataProvider.Instance.ExecuteNonQuery(query);
         }
         public void InsertBill(int id)
@@ -51,6 +52,22 @@ namespace PhanMemQuanLyQuanCafe.DAO
             {
                 return 1;
             }
+        }
+        public Bill GetUncheckBillDTOByTableID(int id)
+        {
+            DataTable data = DataProvider.Instance.ExecuteQuery("select * from dbo.Bill where idTable=" + id + " and status = 0");
+
+            if (data.Rows.Count > 0)
+            {
+                return new Bill(data.Rows[0]);
+            }
+            else
+                return null ;
+        }
+
+        public int UpdateBill(Bill bill)
+        {
+            return DataProvider.Instance.ExecuteNonQuery("Update dbo.Bill SET idTable= " + bill.IDTable + " where id = " + bill.ID);
         }
     }
 }

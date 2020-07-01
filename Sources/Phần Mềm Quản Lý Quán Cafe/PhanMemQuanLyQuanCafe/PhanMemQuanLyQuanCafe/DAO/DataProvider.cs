@@ -75,9 +75,7 @@ namespace PhanMemQuanLyQuanCafe.DAO
                         }
                     }
                 }
-
                 data = command.ExecuteNonQuery();
-
                 connection.Close();
             }
 

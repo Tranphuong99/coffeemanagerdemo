@@ -23,7 +23,7 @@ CREATE TABLE TableFood
 (
 	id INT IDENTITY PRIMARY KEY,
 	name NVARCHAR(100) NOT NULL DEFAULT N'Bàn chưa có tên',
-	status NVARCHAR(100) NOT NULL DEFAULT N'Trống'	-- Trống || Có người
+	status NVARCHAR(100) NOT NULL DEFAULT N'Empty'	-- Trống || Có người
 )
 GO
 
@@ -60,7 +60,8 @@ CREATE TABLE Bill
 	DateCheckIn DATE NOT NULL DEFAULT GETDATE(),
 	DateCheckOut DATE,
 	idTable INT NOT NULL,
-	status INT NOT NULL DEFAULT 0 -- 1: đã thanh toán && 0: chưa thanh toán
+	status INT NOT NULL DEFAULT 0, -- 1: đã thanh toán && 0: chưa thanh toán
+	discount int DEFAULT 0
 	
 	FOREIGN KEY (idTable) REFERENCES dbo.TableFood(id)
 )
@@ -119,7 +120,7 @@ BEGIN
 END
 GO
 --Thêm bàn
-DECLARE @i INT = 0
+DECLARE @i INT = 1
 
 WHILE @i <= 10
 BEGIN
@@ -132,21 +133,11 @@ Create proc USP_GetTableList
 AS select * from dbo.TableFood
 GO
 
-UPDATE dbo.TableFood SET STATUS = N'Có người' WHERE id = 9
+UPDATE dbo.TableFood SET STATUS = N'Occupied' WHERE id = 3
 
 EXEC dbo.USP_GetTableList 
 GO
 -- thêm category
-INSERT dbo.FoodCategory
-        ( name )
-VALUES  ( N'Hải sản'  -- name - nvarchar(100)
-          )
-INSERT dbo.FoodCategory
-        ( name )
-VALUES  ( N'Nông sản' )
-INSERT dbo.FoodCategory
-        ( name )
-VALUES  ( N'Lâm sản' )
 INSERT dbo.FoodCategory
         ( name )
 VALUES  ( N'Bánh ngọt' )
@@ -157,27 +148,27 @@ VALUES  ( N'Nước' )
 -- thêm món ăn
 INSERT dbo.Food
         ( name, idCategory, price )
-VALUES  ( N'Mực một nắng nướng sa tế', -- name - nvarchar(100)
+VALUES  ( N'Tiramisu', -- name - nvarchar(100)
           1, -- idCategory - int
-          120000)
+          40000)
 INSERT dbo.Food
         ( name, idCategory, price )
-VALUES  ( N'Nghêu hấp xả', 1, 50000)
+VALUES  ( N'Bánh sìcúlà', 1, 50000)
 INSERT dbo.Food
         ( name, idCategory, price )
-VALUES  ( N'Cơm chiên', 2, 60000)
+VALUES  ( N'Bạc xỉu', 2, 35000)
 INSERT dbo.Food
         ( name, idCategory, price )
-VALUES  ( N'Heo rừng nướng muối ớt', 3, 75000)
+VALUES  ( N'Cà phê cốt dừa', 2, 35000)
 INSERT dbo.Food
         ( name, idCategory, price )
-VALUES  ( N'Cơm chiên kimchi', 4, 999999)
+VALUES  ( N'Trà đào cam sả', 2, 3500)
 INSERT dbo.Food
         ( name, idCategory, price )
-VALUES  ( N'Cà phê đen', 5, 15000)
+VALUES  ( N'Cà phê đen', 2, 15000)
 INSERT dbo.Food
         ( name, idCategory, price )
-VALUES  ( N'Cafe', 5, 12000)
+VALUES  ( N'Cafe sữa', 2, 20000)
 
 -- thêm bill
 INSERT	dbo.Bill
@@ -218,40 +209,23 @@ VALUES  ( GETDATE() , -- DateCheckIn - date
 -- thêm bill info
 INSERT	dbo.BillInfo
         ( idBill, idFood, count )
-VALUES  ( 5, -- idBill - int
+VALUES  ( 1, -- idBill - int
           1, -- idFood - int
           2  -- count - int
           )
 INSERT	dbo.BillInfo
         ( idBill, idFood, count )
-VALUES  ( 5, -- idBill - int
+VALUES  ( 2, -- idBill - int
           3, -- idFood - int
           4  -- count - int
           )
 INSERT	dbo.BillInfo
         ( idBill, idFood, count )
-VALUES  ( 5, -- idBill - int
+VALUES  ( 3, -- idBill - int
           5, -- idFood - int
           1  -- count - int
           )
-INSERT	dbo.BillInfo
-        ( idBill, idFood, count )
-VALUES  ( 6, -- idBill - int
-          1, -- idFood - int
-          2  -- count - int
-          )
-INSERT	dbo.BillInfo
-        ( idBill, idFood, count )
-VALUES  ( 6, -- idBill - int
-          6, -- idFood - int
-          2  -- count - int
-          )
-INSERT	dbo.BillInfo
-        ( idBill, idFood, count )
-VALUES  ( 7, -- idBill - int
-          5, -- idFood - int
-          2  -- count - int
-          )         
+     
           
 GO
 Create proc USP_InsertBill
@@ -262,11 +236,13 @@ BEGIN
    (DateCheckIn,
     DateCheckOut,
 	idTable,
-	status)
+	status,
+	discount)
 	VALUES(GETDATE() , -- DateCheckIn - date
           NULL , -- DateCheckOut - date
           @idTable , -- idTable - int
-          0  -- status - int
+          0,  -- status - int
+		  0
         )
 END
 GO
@@ -302,6 +278,8 @@ GO
 DELETE dbo.BillInfo
 DELETE dbo.Bill 
 
+GO 
+
 Create trigger UTG_UpdateBillInfo
 On dbo.BillInfo for insert, update
 AS
@@ -324,7 +302,9 @@ BEGIN
 	SELECT @idTable = idTable from dbo.Bill where id = @idBill
 	DECLARE @count INT =0
 	SELECT @count = Count(*) from dbo.Bill where idTable = @idTable and status = 0
-	IF (@count ==0)
+	IF (@count =0)
 		UPDATE dbo.TableFood SET status = N'Trống' where id=@idTable
 END
 GO
+
+Select * from dbo.Bill;

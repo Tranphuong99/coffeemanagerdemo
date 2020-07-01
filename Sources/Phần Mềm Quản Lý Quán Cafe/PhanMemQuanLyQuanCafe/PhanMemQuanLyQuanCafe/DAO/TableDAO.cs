@@ -37,5 +37,17 @@ namespace PhanMemQuanLyQuanCafe.DAO
 
             return tableList;
         }
+        public void CheckOut(int id)
+        {
+            string query = "UPDATE dbo.TableFood SET status ='Empty' where id = " +id;
+            DataProvider.Instance.ExecuteNonQuery(query);
+            
+        }
+        public void CheckIn(int id)
+        {
+            string query = "UPDATE dbo.TableFood SET status ='Occupied' where id = " + id;
+            DataProvider.Instance.ExecuteNonQuery(query);
+
+        }
     }
 }

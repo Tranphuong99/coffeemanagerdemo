@@ -18,12 +18,14 @@ namespace PhanMemQuanLyQuanCafe
 {
     public partial class fTableManager : Form
     {
+        private int selectedTable = 0;
         public fTableManager()
         {
             InitializeComponent();
 
             LoadTable();
             LoadCategory();
+            
         }
 
         #region Method
@@ -43,6 +45,7 @@ namespace PhanMemQuanLyQuanCafe
         }
         void LoadTable()
         {
+            cbSwitchTable.Items.Clear();
             flpTable.Controls.Clear();
             List<Table> tableList = TableDAO.Instance.LoadTableList();
 
@@ -55,8 +58,9 @@ namespace PhanMemQuanLyQuanCafe
 
                 switch (item.Status)
                 {
-                    case "Trống":
+                    case "Empty":
                         btn.BackColor = Color.Aqua;
+                        cbSwitchTable.Items.Add(item.ID);
                         break;
                     default:
                         btn.BackColor = Color.LightPink;
@@ -92,9 +96,10 @@ namespace PhanMemQuanLyQuanCafe
         #region Events
         void btn_Click(object sender, EventArgs e)
         {
-            int tableID = ((sender as Button).Tag as Table).ID;
+            int tableID = ((sender as Button).Tag as Table).ID;  
             lsvBill.Tag = (sender as Button).Tag;
             ShowBill(tableID);
+            selectedTable = tableID;
         }
         private void fTableManager_Load(object sender, EventArgs e)
         {
@@ -160,8 +165,8 @@ namespace PhanMemQuanLyQuanCafe
             if (idBill == -1)
             {
                 BillDAO.Instance.InsertBill(table.ID);
-                BillInfoDAO.Instance.InsertBillInfo(BillDAO.Instance.GetMaxIDBill(), foodID, count); 
-
+                BillInfoDAO.Instance.InsertBillInfo(BillDAO.Instance.GetMaxIDBill(), foodID, count);
+                TableDAO.Instance.CheckIn(table.ID);
             }
             else
             {
@@ -169,25 +174,45 @@ namespace PhanMemQuanLyQuanCafe
             }
 
             ShowBill(table.ID);
+            LoadTable();
         }
         private void btnCheckOut_Click(object sender, EventArgs e)
             {
                 Table table = lsvBill.Tag as Table;
 
                 int idBill = BillDAO.Instance.GetUncheckBillIDByTableID(table.ID);
+                int discount = (int)nmDiscount.Value;
 
-                if (idBill == -1)
+                if (idBill > -1)
                 {
                 if (MessageBox.Show("Thanh toán hóa đơn?"+ table.Name, "Thông báo",MessageBoxButtons.OKCancel)== System.Windows.Forms.DialogResult.OK)
                     {
-                    BillDAO.Instance.CheckOut(idBill);
-                    ShowBill(table.ID);
+                    
+                    BillDAO.Instance.CheckOut(idBill, discount);
+                    TableDAO.Instance.CheckOut(selectedTable);
+                    lsvBill.Items.Clear();
                     LoadTable();
                     }
                 }
             }
-        #endregion
+            private void btnSwitchTable_Click(object sender, EventArgs e)
+                    {
+                        
+                    //Đổi tất cả bill có trong tableID cũ thành tableID của bàn cần chuyển đến
 
+                        Bill bill = BillDAO.Instance.GetUncheckBillDTOByTableID(selectedTable);
+                        bill.IDTable = (int)cbSwitchTable.SelectedItem;
+                        BillDAO.Instance.UpdateBill(bill);
+
+                    //Set table cũ thành empty
+                    TableDAO.Instance.CheckOut(selectedTable);
+                    //Set table mới thành occupied
+                    TableDAO.Instance.CheckIn(bill.IDTable);
+            ShowBill(selectedTable);
+            LoadTable();
+
+        }
+        #endregion
         
     }
 }
